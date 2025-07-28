@@ -1,4 +1,4 @@
-name: Kotlin Spring Boot CI with Gradle and Docker Compose
+name: Java CI with Gradle
 
 on:
   push:
@@ -13,35 +13,31 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up Docker Compose services (PostgreSQL & Keycloak)
-        run: docker compose -f server/compose.yaml up -d
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
 
-      - name: Wait for Keycloak to be ready
-        run: |
-          echo "Waiting for Keycloak to be ready..."
-          for i in {1..20}; do
-            nc -z localhost 9090 && echo "Keycloak is up!" && break
-            echo "Waiting for Keycloak... ($i)"
-            sleep 5
-          done
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: '8.9'
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+    - name: Make Gradle Wrapper executable
+      working-directory: server
+      run: chmod +x ./gradlew
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+    - name: Build with Gradle Wrapper
+      working-directory: server
+      run: ./gradlew build
 
-      - name: Grant execute permission to Gradle wrapper
-        run: chmod +x server/gradlew
-
-      - name: Build project with Gradle
-        run: server/gradlew build
+    - name: Start Docker Compose
+      working-directory: server
+      run: docker compose -f compose.yml up -d
 
   dependency-submission:
     runs-on: ubuntu-latest
@@ -49,14 +45,15 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
 
-      - name: Submit Gradle dependency graph
-        uses: gradle/actions/dependency-submission@v4
+    - name: Submit Gradle dependency graph
+      working-directory: server
+      uses: gradle/actions/dependency-submission@v4
