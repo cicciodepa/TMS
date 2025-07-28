@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=mydatabase'
+      - 'POSTGRES_PASSWORD=secret'
+      - 'POSTGRES_USER=myuser'
+    ports:
+      - '5432'
+
+  keycloak:
+    container_name: keycloak_auth
+    image: quay.io/keycloak/keycloak:25.0.5
+    ports:
+      - "9090:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak_realm:/opt/keycloak/data/import
+    command:
+      - start-dev
+      - --import-realm
+
+volumes:
+  keycloak_data:
