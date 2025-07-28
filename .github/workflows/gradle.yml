@@ -37,7 +37,7 @@ jobs:
 
     - name: Start Docker Compose
       working-directory: server
-      run: docker compose -f compose.yml up -d
+      run: docker compose -f compose.yaml up -d
 
   dependency-submission:
     runs-on: ubuntu-latest
