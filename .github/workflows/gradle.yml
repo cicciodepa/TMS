@@ -55,5 +55,4 @@ jobs:
         distribution: 'temurin'
 
     - name: Submit Gradle dependency graph
-      working-directory: server
       uses: gradle/actions/dependency-submission@v4
