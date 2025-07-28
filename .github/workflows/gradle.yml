@@ -41,7 +41,7 @@ jobs:
         run: chmod +x server/gradlew
 
       - name: Build project with Gradle
-        run: ./gradlew build
+        run: server/gradlew build
 
   dependency-submission:
     runs-on: ubuntu-latest
